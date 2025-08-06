@@ -16,6 +16,7 @@ import EnhancedDashboard from "./components/dashboard/EnhancedDashboard";
 import SplashScreen from "./components/SplashScreen";
 import ErrorBoundary from "./components/ErrorBoundary";
 import TelegramChatWidget from "./components/TelegramChatWidget";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
 const queryClient = new QueryClient();
 
@@ -82,7 +83,11 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        
+        {/* Global Components */}
         <TelegramChatWidget />
+        <PWAInstallPrompt />
+        <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
     </ErrorBoundary>

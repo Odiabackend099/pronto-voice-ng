@@ -7,12 +7,69 @@
   "background_color": "#0A0A0B",
   "theme_color": "#00D26A",
   "orientation": "portrait-primary",
+  "scope": "/",
+  "prefer_related_applications": false,
+  "lang": "en-NG",
+  "dir": "ltr",
+  "categories": ["emergency", "government", "utilities", "medical", "safety"],
+  "screenshots": [
+    {
+      "src": "/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Emergency reporting interface"
+    },
+    {
+      "src": "/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png",
+      "sizes": "1024x768",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Dashboard view"
+    }
+  ],
   "icons": [
+    {
+      "src": "/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png", 
@@ -21,9 +78,50 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["emergency", "government", "utilities"],
-  "lang": "en-NG",
-  "dir": "ltr",
-  "scope": "/",
-  "prefer_related_applications": false
+  "shortcuts": [
+    {
+      "name": "Emergency Report",
+      "short_name": "Report",
+      "description": "Quickly report an emergency",
+      "url": "/report",
+      "icons": [
+        {
+          "src": "/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Voice Report",
+      "short_name": "Voice",
+      "description": "Report emergency using voice",
+      "url": "/report?voice=true",
+      "icons": [
+        {
+          "src": "/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View emergency dashboard",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "display_override": ["window-controls-overlay", "standalone"],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
 }

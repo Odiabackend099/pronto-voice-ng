@@ -245,3 +245,124 @@ All colors MUST be HSL. Dark theme with green accents for emergency response.
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.8; transform: scale(1.1); }
 }
+
+/* PWA Mobile Optimizations */
+.pwa-safe-area {
+  padding-top: var(--safe-area-top);
+  padding-bottom: var(--safe-area-bottom);
+}
+
+/* Offline Status Indicator */
+.offline {
+  filter: grayscale(0.3);
+}
+
+.offline::before {
+  content: 'Offline Mode';
+  position: fixed;
+  top: var(--safe-area-top, 0);
+  left: 0;
+  right: 0;
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  z-index: 9999;
+}
+
+/* Touch Optimizations for Mobile */
+@media (max-width: 768px) {
+  /* Increase touch targets for mobile */
+  button, .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Prevent zoom on input focus */
+  input, select, textarea {
+    font-size: 16px;
+  }
+
+  /* Better spacing for mobile */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* iPhone 12 Pro Max Specific (428x926) */
+@media (max-width: 428px) and (max-height: 926px) {
+  .mobile-hero {
+    min-height: calc(100vh - var(--safe-area-top) - var(--safe-area-bottom));
+  }
+
+  .mobile-navigation {
+    padding-bottom: calc(1rem + var(--safe-area-bottom));
+  }
+}
+
+/* Samsung Galaxy S21 Ultra Specific (384x854) */
+@media (max-width: 384px) and (max-height: 854px) {
+  .text-xl {
+    font-size: 1.125rem;
+  }
+
+  .text-2xl {
+    font-size: 1.25rem;
+  }
+}
+
+/* PWA Install Button */
+#pwa-install-button {
+  display: none;
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  border-radius: 2rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+#pwa-install-button:hover {
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 6px 16px hsl(var(--primary) / 0.4);
+}
+
+/* High DPI Display Optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .crisp-edges {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Motion Reduced for Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark Mode Optimizations */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+  
+  /* Better text contrast in dark mode */
+  body {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
