@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Shield, Mic, Globe, Clock, Lock, Users } from "lucide-react";
 import { Link } from "react-router-dom";
-import heroBackground from "@/assets/hero-background.webp";
+import heroBackground from "@/assets/hero-emergency-coordinators.webp";
 
 const LandingHero = () => {
   return (
@@ -17,7 +17,7 @@ const LandingHero = () => {
           backgroundRepeat: 'no-repeat'
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/15 to-background/20" />
+        <div className="absolute inset-0 bg-black/20" />
         
         <div className="container mx-auto px-6 text-center relative z-10">
           {/* Logo and Brand */}
