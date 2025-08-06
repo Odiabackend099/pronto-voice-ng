@@ -16,7 +16,7 @@ interface TelegramChatWidgetProps {
 }
 
 const TelegramChatWidget: React.FC<TelegramChatWidgetProps> = ({ 
-  botUsername = "Odia_dev_bot", 
+  botUsername = "Cross_Aibot", 
   className = "" 
 }) => {
   const [isOpen, setIsOpen] = useState(false);
