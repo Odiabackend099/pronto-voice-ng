@@ -51,3 +51,6 @@ verify_jwt = false
 
 [functions.log-emergency]
 verify_jwt = false
+
+[functions.elevenlabs-agent]
+verify_jwt = false

@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Shield, Phone, AlertTriangle, Clock } from "lucide-react";
 import VoiceRecorder from "@/components/VoiceRecorder";
+import ConversationAgent from "@/components/ConversationAgent";
 import NigeriaMap from "@/components/NigeriaMap";
 import { useToast } from "@/hooks/use-toast";
 
@@ -30,6 +31,22 @@ const EmergencyReport = () => {
         description: `Emergency ID: ${newEmergencyId} - Response team has been notified.`,
       });
     }, 2000);
+  };
+
+  const handleAIEmergencyDetected = (emergency: any) => {
+    setTranscript(emergency.transcript || emergency.description || "AI detected emergency");
+    setDetectedLanguage(emergency.detectedLanguage || "en");
+    
+    // Log AI-detected emergency
+    setTimeout(() => {
+      const newEmergencyId = `AI-EMG-${Date.now()}`;
+      setEmergencyId(newEmergencyId);
+      
+      toast({
+        title: "AI Emergency Detected",
+        description: `Emergency ID: ${newEmergencyId} - AI assistant logged emergency details.`,
+      });
+    }, 1000);
   };
 
   const handleLocationUpdate = (location: [number, number]) => {
@@ -105,6 +122,12 @@ const EmergencyReport = () => {
             <VoiceRecorder 
               onTranscript={handleTranscript}
               onRecordingState={handleRecordingState}
+            />
+
+            {/* AI Conversation Agent */}
+            <ConversationAgent 
+              agentId="agent_9301k1v115cyfh7ba0eb9bhh3qzw"
+              onEmergencyDetected={handleAIEmergencyDetected}
             />
 
             {/* Emergency Instructions */}
