@@ -65,6 +65,45 @@ export type Database = {
         }
         Relationships: []
       }
+      error_logs: {
+        Row: {
+          created_at: string | null
+          error_message: string
+          error_type: string
+          id: string
+          metadata: Json | null
+          session_id: string | null
+          stack_trace: string | null
+          url: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message: string
+          error_type: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string | null
+          stack_trace?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string
+          error_type?: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string | null
+          stack_trace?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       incident_markers: {
         Row: {
           address: string | null
@@ -118,12 +157,105 @@ export type Database = {
           },
         ]
       }
+      performance_metrics: {
+        Row: {
+          created_at: string | null
+          duration_ms: number
+          id: string
+          metadata: Json | null
+          operation_type: string
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration_ms: number
+          id?: string
+          metadata?: Json | null
+          operation_type: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          duration_ms?: number
+          id?: string
+          metadata?: Json | null
+          operation_type?: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_audit_log: {
+        Row: {
+          created_at: string | null
+          endpoint: string | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          request_data: Json | null
+          response_status: number | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint?: string | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          request_data?: Json | null
+          response_status?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint?: string | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          request_data?: Json | null
+          response_status?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      voice_conversations: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          message: string
+          timestamp: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          message: string
+          timestamp?: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          timestamp?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_old_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
