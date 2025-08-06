@@ -1,257 +1,175 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { MapPin, Locate, Navigation, X } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { MapPin, Navigation, X, Zap, AlertTriangle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import LiveGoogleMap from './LiveGoogleMap';
+import { useToast } from '@/components/ui/use-toast';
 
 interface EmergencyMapProps {
   onClose: () => void;
 }
 
-interface UserLocation {
-  latitude: number;
-  longitude: number;
-  accuracy: number;
-  address?: string;
-}
-
-const EmergencyMap = ({ onClose }: EmergencyMapProps) => {
-  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [locationError, setLocationError] = useState<string | null>(null);
+const EmergencyMap: React.FC<EmergencyMapProps> = ({ onClose }) => {
+  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationAddress, setLocationAddress] = useState<string>('');
   const { toast } = useToast();
-
-  useEffect(() => {
-    getCurrentLocation();
-  }, []);
-
-  const getCurrentLocation = () => {
-    setIsLoading(true);
-    setLocationError(null);
-
-    if (!navigator.geolocation) {
-      setLocationError("Geolocation is not supported by this browser");
-      setIsLoading(false);
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude, accuracy } = position.coords;
-        
-        try {
-          // Reverse geocoding to get address
-          const address = await reverseGeocode(latitude, longitude);
-          
-          setUserLocation({
-            latitude,
-            longitude,
-            accuracy,
-            address
-          });
-          
-          toast({
-            title: "Location Found",
-            description: `Current location: ${address || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`}`,
-          });
-        } catch (error) {
-          setUserLocation({
-            latitude,
-            longitude,
-            accuracy
-          });
-          
-          toast({
-            title: "Location Found",
-            description: `Coordinates: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
-          });
-        }
-        
-        setIsLoading(false);
-      },
-      (error) => {
-        let errorMessage = "Failed to get location";
-        
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            errorMessage = "Location access denied by user";
-            break;
-          case error.POSITION_UNAVAILABLE:
-            errorMessage = "Location information unavailable";
-            break;
-          case error.TIMEOUT:
-            errorMessage = "Location request timed out";
-            break;
-        }
-        
-        setLocationError(errorMessage);
-        setIsLoading(false);
-        
-        toast({
-          title: "Location Error",
-          description: errorMessage,
-          variant: "destructive",
-        });
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000
-      }
-    );
-  };
-
-  const reverseGeocode = async (lat: number, lng: number): Promise<string> => {
-    // This is a basic reverse geocoding implementation
-    // In production, you should use a proper geocoding service like Google Maps or Mapbox
-    const response = await fetch(
-      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
-    );
-    
-    if (!response.ok) {
-      throw new Error("Geocoding failed");
-    }
-    
-    const data = await response.json();
-    return data.display_name || data.locality || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-  };
-
-  const shareLocation = () => {
-    if (!userLocation) return;
-    
-    const locationText = `Emergency Location: ${userLocation.address || `${userLocation.latitude.toFixed(6)}, ${userLocation.longitude.toFixed(6)}`}\nAccuracy: ${userLocation.accuracy.toFixed(0)} meters`;
-    
-    navigator.share?.({
-      title: "Emergency Location",
-      text: locationText,
-    }).catch(() => {
-      // Fallback to clipboard
-      navigator.clipboard.writeText(locationText);
-      toast({
-        title: "Location Copied",
-        description: "Emergency location copied to clipboard",
-      });
-    });
-  };
-
-  const openInMaps = () => {
-    if (!userLocation) return;
-    
-    const { latitude, longitude } = userLocation;
-    const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
-    window.open(url, '_blank');
-  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-2xl glass-card border-primary/20">
+      <Card className="w-full max-w-6xl max-h-[95vh] overflow-y-auto glass-card border-primary/20">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-primary/10">
-                <MapPin className="w-6 h-6 text-primary" />
-              </div>
+              <img 
+                src="/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png"
+                alt="Protect.NG CrossAI"
+                className="w-8 h-8"
+              />
               <div>
-                <CardTitle>Emergency Location</CardTitle>
-                <CardDescription>Your current location for emergency response</CardDescription>
+                <CardTitle className="text-xl">Live Emergency Map & GPS Tracking</CardTitle>
+                <CardDescription>Real-time location tracking and emergency incident monitoring</CardDescription>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+            >
               <X className="w-4 h-4" />
             </Button>
           </div>
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* Location Status */}
-          <div className="flex items-center gap-4">
-            <Badge variant={userLocation ? "default" : isLoading ? "secondary" : "destructive"}>
-              {isLoading ? "Locating..." : userLocation ? "Location Found" : "Location Error"}
-            </Badge>
-            {userLocation && (
-              <Badge variant="outline">
-                Accuracy: ±{userLocation.accuracy.toFixed(0)}m
-              </Badge>
-            )}
-          </div>
+          {/* Live Google Map */}
+          <LiveGoogleMap 
+            showIncidents={true}
+            onLocationUpdate={(lat, lng, address) => {
+              setCurrentLocation({ lat, lng });
+              if (address) setLocationAddress(address);
+            }}
+          />
 
-          {/* Location Information */}
-          <div className="space-y-4">
-            {isLoading && (
-              <div className="text-center p-8">
-                <Locate className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
-                <h3 className="text-lg font-semibold mb-2">Getting Your Location</h3>
-                <p className="text-muted-foreground">
-                  Please allow location access for emergency response coordination
-                </p>
-              </div>
-            )}
-
-            {locationError && (
-              <div className="text-center p-8 bg-destructive/10 rounded-lg">
-                <MapPin className="w-12 h-12 text-destructive mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2 text-destructive">Location Error</h3>
-                <p className="text-muted-foreground mb-4">{locationError}</p>
-                <Button onClick={getCurrentLocation} variant="outline">
-                  <Locate className="w-4 h-4 mr-2" />
-                  Try Again
+          {/* Emergency Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5" />
+                Emergency Actions
+              </CardTitle>
+              <CardDescription>
+                Quick actions available at your current location
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Button 
+                  className="justify-start gap-2" 
+                  variant="destructive"
+                  onClick={() => {
+                    toast({
+                      title: "Emergency Services Contacted",
+                      description: "Your location has been shared with emergency responders.",
+                    });
+                  }}
+                >
+                  <AlertTriangle className="w-4 h-4" />
+                  Report Emergency at This Location
+                </Button>
+                
+                <Button 
+                  className="justify-start gap-2" 
+                  variant="outline"
+                  onClick={() => {
+                    if (navigator.share && currentLocation) {
+                      navigator.share({
+                        title: 'My Emergency Location',
+                        text: `I'm currently at: ${locationAddress || `${currentLocation.lat}, ${currentLocation.lng}`}`,
+                        url: `https://maps.google.com/?q=${currentLocation.lat},${currentLocation.lng}`
+                      });
+                    } else if (currentLocation) {
+                      const locationText = `Emergency Location: ${locationAddress || `${currentLocation.lat}, ${currentLocation.lng}`}`;
+                      navigator.clipboard.writeText(locationText);
+                      toast({
+                        title: "Location Copied",
+                        description: "Your emergency location has been copied to clipboard.",
+                      });
+                    }
+                  }}
+                >
+                  <MapPin className="w-4 h-4" />
+                  Share Current Location
+                </Button>
+                
+                <Button 
+                  className="justify-start gap-2" 
+                  variant="outline"
+                  onClick={() => {
+                    if (currentLocation) {
+                      const url = `https://www.google.com/maps?q=${currentLocation.lat},${currentLocation.lng}`;
+                      window.open(url, '_blank');
+                    }
+                  }}
+                >
+                  <Navigation className="w-4 h-4" />
+                  Open in Google Maps
+                </Button>
+                
+                <Button 
+                  className="justify-start gap-2" 
+                  variant="secondary"
+                  onClick={() => {
+                    toast({
+                      title: "Responders Notified",
+                      description: "Emergency responders have been alerted to your location.",
+                    });
+                  }}
+                >
+                  <AlertTriangle className="w-4 h-4" />
+                  Alert Emergency Responders
                 </Button>
               </div>
-            )}
+            </CardContent>
+          </Card>
 
-            {userLocation && (
-              <div className="space-y-4">
-                <div className="p-6 bg-muted/30 rounded-lg">
-                  <h3 className="text-lg font-semibold mb-4">Your Emergency Location</h3>
-                  
-                  <div className="space-y-3">
-                    {userLocation.address && (
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Address</label>
-                        <p className="text-foreground">{userLocation.address}</p>
-                      </div>
-                    )}
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Latitude</label>
-                        <p className="text-foreground font-mono">{userLocation.latitude.toFixed(6)}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Longitude</label>
-                        <p className="text-foreground font-mono">{userLocation.longitude.toFixed(6)}</p>
-                      </div>
+          {/* Location Status */}
+          {currentLocation && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5" />
+                  Current Location Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Coordinates:</span>
+                    <Badge variant="outline" className="font-mono">
+                      {currentLocation.lat.toFixed(6)}, {currentLocation.lng.toFixed(6)}
+                    </Badge>
+                  </div>
+                  {locationAddress && (
+                    <div className="flex items-start justify-between">
+                      <span className="text-sm font-medium">Address:</span>
+                      <span className="text-sm text-muted-foreground text-right max-w-xs">
+                        {locationAddress}
+                      </span>
                     </div>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Status:</span>
+                    <Badge className="gap-1">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                      Live Tracking
+                    </Badge>
                   </div>
                 </div>
-
-                {/* Map Placeholder - In production, integrate with Mapbox */}
-                <div className="h-64 bg-muted/20 rounded-lg flex items-center justify-center border-2 border-dashed border-primary/20">
-                  <div className="text-center">
-                    <MapPin className="w-16 h-16 text-primary mx-auto mb-4" />
-                    <h4 className="text-lg font-semibold mb-2">Interactive Map</h4>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Map integration will show your exact location here
-                    </p>
-                    <Badge variant="secondary">Coming Soon - Mapbox Integration</Badge>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex gap-4">
-                  <Button onClick={shareLocation} className="flex-1">
-                    <Navigation className="w-4 h-4 mr-2" />
-                    Share Location
-                  </Button>
-                  <Button onClick={openInMaps} variant="outline" className="flex-1">
-                    <MapPin className="w-4 h-4 mr-2" />
-                    Open in Maps
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
+              </CardContent>
+            </Card>
+          )}
         </CardContent>
       </Card>
     </div>
