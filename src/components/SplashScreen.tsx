@@ -1,13 +1,23 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 
+console.log('SplashScreen: React import successful:', React);
+console.log('SplashScreen: useEffect available:', useEffect);
+
 const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
+  console.log('SplashScreen: Component rendering');
+  
   useEffect(() => {
+    console.log('SplashScreen: useEffect executing');
     const timer = setTimeout(() => {
+      console.log('SplashScreen: Timer completed, calling onComplete');
       onComplete();
     }, 2500);
 
-    return () => clearTimeout(timer);
+    return () => {
+      console.log('SplashScreen: Cleanup timer');
+      clearTimeout(timer);
+    };
   }, [onComplete]);
 
   return (
