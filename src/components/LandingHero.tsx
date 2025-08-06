@@ -17,7 +17,7 @@ const LandingHero = () => {
           backgroundRepeat: 'no-repeat'
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/50 to-background/50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/25 to-background/35" />
         
         <div className="container mx-auto px-6 text-center relative z-10">
           {/* Logo and Brand */}
