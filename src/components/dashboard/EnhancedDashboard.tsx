@@ -30,6 +30,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { logger } from "@/utils/logger";
+import EmergencyVoiceChat from "../EmergencyVoiceChat";
+import EmergencyMap from "../EmergencyMap";
 
 interface DashboardStats {
   activeResponses: number;
@@ -62,6 +64,8 @@ interface ResponseTeam {
 
 const EnhancedDashboard = () => {
   const [user, setUser] = useState<any>(null);
+  const [showVoiceChat, setShowVoiceChat] = useState(false);
+  const [showMap, setShowMap] = useState(false);
   const [stats, setStats] = useState<DashboardStats>({
     activeResponses: 24,
     responseTeams: 156,
@@ -193,6 +197,29 @@ const EnhancedDashboard = () => {
       case 'responding': return 'bg-orange-500';
       case 'busy': return 'bg-red-500';
       default: return 'bg-gray-500';
+    }
+  };
+
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case 'report':
+        navigate('/report');
+        break;
+      case 'dispatch':
+        toast({
+          title: "Coming Soon",
+          description: "Team dispatch functionality will be available once emergency mapping is implemented.",
+          variant: "default",
+        });
+        break;
+      case 'call':
+        setShowVoiceChat(true);
+        break;
+      case 'map':
+        setShowMap(true);
+        break;
+      default:
+        break;
     }
   };
 
@@ -428,21 +455,35 @@ const EnhancedDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button variant="outline" className="h-20 flex-col gap-2" asChild>
-                    <Link to="/report">
-                      <AlertTriangle className="w-6 h-6 text-destructive" />
-                      <span>Report Emergency</span>
-                    </Link>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex-col gap-2" 
+                    onClick={() => handleQuickAction('report')}
+                  >
+                    <AlertTriangle className="w-6 h-6 text-destructive" />
+                    <span>Report Emergency</span>
                   </Button>
-                  <Button variant="outline" className="h-20 flex-col gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex-col gap-2"
+                    onClick={() => handleQuickAction('dispatch')}
+                  >
                     <Users className="w-6 h-6 text-blue-500" />
                     <span>Dispatch Team</span>
                   </Button>
-                  <Button variant="outline" className="h-20 flex-col gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex-col gap-2 border-green-500/30 hover:bg-green-500/10"
+                    onClick={() => handleQuickAction('call')}
+                  >
                     <Phone className="w-6 h-6 text-green-500" />
                     <span>Emergency Call</span>
                   </Button>
-                  <Button variant="outline" className="h-20 flex-col gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex-col gap-2 border-purple-500/30 hover:bg-purple-500/10"
+                    onClick={() => handleQuickAction('map')}
+                  >
                     <MapPin className="w-6 h-6 text-purple-500" />
                     <span>View Map</span>
                   </Button>
@@ -529,6 +570,15 @@ const EnhancedDashboard = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Modal Components */}
+      {showVoiceChat && (
+        <EmergencyVoiceChat onClose={() => setShowVoiceChat(false)} />
+      )}
+      
+      {showMap && (
+        <EmergencyMap onClose={() => setShowMap(false)} />
+      )}
     </div>
   );
 };
