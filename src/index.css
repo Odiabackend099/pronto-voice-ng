@@ -143,11 +143,24 @@ All colors MUST be HSL. Dark theme with green accents for emergency response.
 
 @layer components {
   .hero-section {
-    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), 
-                url('/lovable-uploads/87a16b05-804c-41ca-8463-ce0f7cc89b8c.png');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
+    background: linear-gradient(135deg, 
+                  hsl(var(--background)) 0%, 
+                  hsl(var(--ng-dark)) 50%, 
+                  hsl(var(--ng-green) / 0.1) 100%);
+    position: relative;
+  }
+
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at center, 
+                  hsl(var(--ng-green) / 0.1) 0%, 
+                  transparent 70%);
+    pointer-events: none;
   }
 
   .emergency-button {
