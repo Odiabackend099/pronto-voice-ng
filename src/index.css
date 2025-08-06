@@ -48,134 +48,191 @@ All colors MUST be HSL. Dark theme with green accents for emergency response.
 
     /* Nigeria Brand Colors */
     --ng-green: 158 66% 19%;
-    --ng-gold: 51 100% 50%;
-    --ng-dark: 220 39% 11%;
+    --ng-white: 0 0% 100%;
 
-    /* Interactive States */
-    --mic-active: 0 72% 51%;
-    --mic-listening: 158 66% 19%;
-    --mic-idle: 215 20% 65%;
+    /* Glass Effect & Gradients */
+    --glass-bg: hsla(220, 39%, 11%, 0.7);
+    --glass-border: hsla(158, 66%, 19%, 0.2);
+    --gradient-primary: linear-gradient(135deg, hsl(158, 66%, 19%), hsl(158, 66%, 15%));
+    --gradient-emergency: linear-gradient(135deg, hsl(0, 72%, 51%), hsl(25, 95%, 53%));
+    --gradient-hero: linear-gradient(180deg, hsla(220, 39%, 11%, 0.8), hsla(220, 39%, 11%, 0.95));
 
-    --radius: 0.75rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Border Radius */
+    --radius: 0.5rem;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-}
-
-@layer base {
   * {
     @apply border-border;
   }
 
   body {
     @apply bg-background text-foreground;
-  }
-
-  /* Emergency Response Animations */
-  .emergency-pulse {
-    animation: emergency-pulse 2s infinite;
-  }
-
-  .mic-listening {
-    animation: mic-pulse 1.5s ease-in-out infinite;
-  }
-
-  .emergency-glow {
-    box-shadow: 0 0 20px hsl(var(--emergency-critical) / 0.5);
-  }
-
-  .nigeria-gradient {
-    background: linear-gradient(135deg, hsl(var(--ng-green)), hsl(var(--ng-gold)));
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
 @layer components {
+  /* Hero Section with Background */
   .hero-section {
-    background: linear-gradient(
-                  rgba(0, 0, 0, 0.7), 
-                  rgba(0, 0, 0, 0.8)
-                ), 
-                url('./assets/hero-background.webp');
+    @apply relative min-h-screen;
+    background-image: url('/src/assets/hero-background.webp');
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     background-attachment: fixed;
-    position: relative;
   }
 
   .hero-section::before {
     content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, 
-                  hsl(var(--ng-green) / 0.2) 0%, 
-                  transparent 50%,
-                  hsl(var(--ng-dark) / 0.3) 100%);
-    pointer-events: none;
+    @apply absolute inset-0;
+    background: var(--gradient-hero);
+    z-index: 1;
   }
 
+  .hero-section > * {
+    @apply relative z-10;
+  }
+
+  /* Emergency Button with Pulse Animation */
   .emergency-button {
-    @apply bg-primary hover:bg-primary/90 text-primary-foreground 
-           rounded-lg px-8 py-4 font-semibold transition-all duration-300
-           hover:shadow-lg hover:scale-105 active:scale-95;
+    @apply bg-primary text-primary-foreground font-semibold;
+    @apply hover:bg-primary/90 active:bg-primary/80;
+    @apply transition-all duration-300 ease-in-out;
+    @apply shadow-lg hover:shadow-xl;
+    background: var(--gradient-primary);
+    border: 1px solid hsl(var(--primary));
   }
 
+  .emergency-pulse {
+    animation: emergencyPulse 2s ease-in-out infinite;
+  }
+
+  /* Status Indicators */
   .status-indicator {
-    @apply inline-block w-3 h-3 rounded-full animate-pulse;
+    @apply w-2 h-2 rounded-full;
+    animation: statusPulse 2s ease-in-out infinite;
+  }
+
+  /* Glass Effect Components */
+  .glass-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* Emergency Status Badges */
+  .status-critical {
+    @apply bg-destructive text-destructive-foreground;
+  }
+  
+  .status-high {
+    background: hsl(var(--emergency-high));
+    color: hsl(var(--foreground));
+  }
+  
+  .status-medium {
+    background: hsl(var(--emergency-medium));
+    color: hsl(var(--background));
+  }
+  
+  .status-low {
+    background: hsl(var(--emergency-low));
+    color: hsl(var(--foreground));
+  }
+
+  /* Audio Visualization */
+  .audio-wave {
+    @apply inline-block w-1 bg-primary mx-0.5 rounded-full;
+    animation: audioWave 1.5s ease-in-out infinite;
+  }
+
+  .audio-wave:nth-child(2) { animation-delay: 0.1s; }
+  .audio-wave:nth-child(3) { animation-delay: 0.2s; }
+  .audio-wave:nth-child(4) { animation-delay: 0.3s; }
+  .audio-wave:nth-child(5) { animation-delay: 0.4s; }
+
+  /* Location Markers */
+  .location-marker {
+    @apply w-6 h-6 rounded-full border-2 border-white shadow-lg;
+    animation: markerPulse 2s ease-in-out infinite;
+  }
+
+  .marker-fire {
+    @apply bg-red-500;
+  }
+  
+  .marker-medical {
+    @apply bg-blue-500;
+  }
+  
+  .marker-security {
+    @apply bg-yellow-500;
+  }
+  
+  .marker-flood {
+    @apply bg-cyan-500;
+  }
+  
+  .marker-accident {
+    @apply bg-orange-500;
+  }
+}
+
+@layer utilities {
+  /* Custom Animation Keyframes */
+  @keyframes emergencyPulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 hsl(var(--primary) / 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px hsl(var(--primary) / 0);
+    }
+  }
+
+  @keyframes statusPulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes audioWave {
+    0%, 100% {
+      height: 0.5rem;
+    }
+    50% {
+      height: 2rem;
+    }
+  }
+
+  @keyframes markerPulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 0.8;
+    }
+  }
+
+  /* Emergency Response Utilities */
+  .emergency-gradient {
+    background: var(--gradient-emergency);
+  }
+
+  .ng-gradient {
+    background: var(--gradient-primary);
+  }
+
+  .glass-effect {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
   }
 }
 

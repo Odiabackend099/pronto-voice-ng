@@ -8,8 +8,16 @@ const LandingHero = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="hero-section min-h-screen flex items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background/60" />
+      <section 
+        className="hero-section min-h-screen flex items-center justify-center relative overflow-hidden"
+        style={{
+          backgroundImage: `url(${heroBackground})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
         
         <div className="container mx-auto px-6 text-center relative z-10">
           {/* Logo and Brand */}
