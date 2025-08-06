@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Shield, Mic, Globe, Clock, Lock, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import heroBackground from "@/assets/hero-background.webp";
 
 const LandingHero = () => {
   return (

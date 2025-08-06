@@ -143,10 +143,14 @@ All colors MUST be HSL. Dark theme with green accents for emergency response.
 
 @layer components {
   .hero-section {
-    background: linear-gradient(135deg, 
-                  hsl(var(--background)) 0%, 
-                  hsl(var(--ng-dark)) 50%, 
-                  hsl(var(--ng-green) / 0.1) 100%);
+    background: linear-gradient(
+                  rgba(0, 0, 0, 0.7), 
+                  rgba(0, 0, 0, 0.8)
+                ), 
+                url('./assets/hero-background.webp');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     position: relative;
   }
 
@@ -157,9 +161,10 @@ All colors MUST be HSL. Dark theme with green accents for emergency response.
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(ellipse at center, 
-                  hsl(var(--ng-green) / 0.1) 0%, 
-                  transparent 70%);
+    background: linear-gradient(135deg, 
+                  hsl(var(--ng-green) / 0.2) 0%, 
+                  transparent 50%,
+                  hsl(var(--ng-dark) / 0.3) 100%);
     pointer-events: none;
   }
 
