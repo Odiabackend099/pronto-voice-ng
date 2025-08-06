@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Navigation, X, Zap, AlertTriangle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import LiveGoogleMap from './LiveGoogleMap';
+import OpenStreetMapComponent from './OpenStreetMapComponent';
 import { useToast } from '@/components/ui/use-toast';
 
 interface EmergencyMapProps {
@@ -43,8 +43,8 @@ const EmergencyMap: React.FC<EmergencyMapProps> = ({ onClose }) => {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* Live Google Map */}
-          <LiveGoogleMap 
+          {/* Live OpenStreetMap */}
+          <OpenStreetMapComponent 
             showIncidents={true}
             onLocationUpdate={(lat, lng, address) => {
               setCurrentLocation({ lat, lng });
