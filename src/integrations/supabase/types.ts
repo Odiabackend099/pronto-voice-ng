@@ -14,7 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      emergency_calls: {
+        Row: {
+          audio_url: string | null
+          confidence: number | null
+          created_at: string
+          detected_language: string | null
+          emergency_type: string | null
+          id: string
+          location_address: string | null
+          location_lat: number | null
+          location_lng: number | null
+          severity: string | null
+          status: string | null
+          transcript: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          confidence?: number | null
+          created_at?: string
+          detected_language?: string | null
+          emergency_type?: string | null
+          id?: string
+          location_address?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          severity?: string | null
+          status?: string | null
+          transcript: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          confidence?: number | null
+          created_at?: string
+          detected_language?: string | null
+          emergency_type?: string | null
+          id?: string
+          location_address?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          severity?: string | null
+          status?: string | null
+          transcript?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      incident_markers: {
+        Row: {
+          address: string | null
+          category: string
+          created_at: string
+          description: string | null
+          emergency_call_id: string | null
+          id: string
+          lat: number
+          lng: number
+          severity: string
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          category: string
+          created_at?: string
+          description?: string | null
+          emergency_call_id?: string | null
+          id?: string
+          lat: number
+          lng: number
+          severity: string
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          emergency_call_id?: string | null
+          id?: string
+          lat?: number
+          lng?: number
+          severity?: string
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_markers_emergency_call_id_fkey"
+            columns: ["emergency_call_id"]
+            isOneToOne: false
+            referencedRelation: "emergency_calls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

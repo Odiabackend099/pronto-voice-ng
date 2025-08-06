@@ -155,25 +155,83 @@ const VoiceRecorder = ({ onTranscript, onRecordingState }: VoiceRecorderProps) =
 
   const processAudio = async (audioBlob: Blob) => {
     try {
-      // Simulate STT processing - in production this would call the edge function
-      const formData = new FormData();
-      formData.append('audio', audioBlob);
+      // Convert audio blob to base64
+      const arrayBuffer = await audioBlob.arrayBuffer();
+      const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
       
-      // Mock response for demo
-      setTimeout(() => {
-        const mockTranscripts = [
-          { text: "There is a fire at Yaba market, people are trapped", language: "en" },
-          { text: "Accident happen for Third Mainland Bridge", language: "pcm" },
-          { text: "Wuta ya barke a kasuwar Yaba", language: "ha" },
-          { text: "Iná ń jó ní ọjà Yaba", language: "yo" },
-          { text: "Ọkụ na-ere n'ahịa Yaba", language: "ig" }
-        ];
+      // Call STT edge function
+      const sttResponse = await fetch(`https://ogozmimoriwhzoyicmse.supabase.co/functions/v1/stt-transcribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ audio: base64Audio }),
+      });
+
+      if (!sttResponse.ok) {
+        throw new Error('STT processing failed');
+      }
+
+      const sttResult = await sttResponse.json();
+      const { transcript, detected_language, confidence } = sttResult;
+
+      setCurrentTranscript(transcript);
+      setDetectedLanguage(detected_language);
+      onTranscript(transcript, detected_language);
+
+      // Classify the emergency
+      const classifyResponse = await fetch(`https://ogozmimoriwhzoyicmse.supabase.co/functions/v1/classify-emergency`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          transcript, 
+          language: detected_language 
+        }),
+      });
+
+      if (classifyResponse.ok) {
+        const classification = await classifyResponse.json();
         
-        const randomTranscript = mockTranscripts[Math.floor(Math.random() * mockTranscripts.length)];
-        setCurrentTranscript(randomTranscript.text);
-        setDetectedLanguage(randomTranscript.language);
-        onTranscript(randomTranscript.text, randomTranscript.language);
-      }, 1500);
+        // Generate TTS response
+        const ttsResponse = await fetch(`https://ogozmimoriwhzoyicmse.supabase.co/functions/v1/tts-generate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            text: classification.response || "Emergency received. Help is on the way.",
+            voice_id: "djTpf4uIoIkiTgl4S93N"
+          }),
+        });
+
+        if (ttsResponse.ok) {
+          const ttsResult = await ttsResponse.json();
+          // Play the audio response
+          playAudioResponse(ttsResult.audio_url);
+        }
+
+        // Log the emergency
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          await fetch(`https://ogozmimoriwhzoyicmse.supabase.co/functions/v1/log-emergency`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              transcript,
+              detected_language,
+              confidence,
+              emergency_type: classification.emergency_type,
+              severity: classification.severity,
+              location_lat: position.coords.latitude,
+              location_lng: position.coords.longitude,
+              audio_url: null,
+            }),
+          });
+        });
+      }
 
     } catch (error) {
       console.error("Audio processing failed:", error);
@@ -182,6 +240,18 @@ const VoiceRecorder = ({ onTranscript, onRecordingState }: VoiceRecorderProps) =
         description: "Failed to process audio. Please try again.",
         variant: "destructive"
       });
+    }
+  };
+
+  const playAudioResponse = async (audioUrl: string) => {
+    try {
+      const audio = new Audio(audioUrl);
+      await audio.play();
+    } catch (error) {
+      console.error("Audio playback failed:", error);
+      // Fallback to speech synthesis
+      const utterance = new SpeechSynthesisUtterance("Emergency received. Help is on the way.");
+      speechSynthesis.speak(utterance);
     }
   };
 
