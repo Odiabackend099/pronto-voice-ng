@@ -7,6 +7,7 @@ import { ArrowLeft, Shield, Phone, AlertTriangle, Clock } from "lucide-react";
 import VoiceRecorder from "@/components/VoiceRecorder";
 import ConversationAgent from "@/components/ConversationAgent";
 import NigeriaMap from "@/components/NigeriaMap";
+import TTSTestComponent from "@/components/TTSTestComponent";
 import { useToast } from "@/hooks/use-toast";
 
 const EmergencyReport = () => {
@@ -129,6 +130,9 @@ const EmergencyReport = () => {
               agentId="agent_9301k1v115cyfh7ba0eb9bhh3qzw"
               onEmergencyDetected={handleAIEmergencyDetected}
             />
+
+            {/* TTS Test Component */}
+            <TTSTestComponent />
 
             {/* Emergency Instructions */}
             <Card className="p-6 bg-primary/5 border-primary/20">
