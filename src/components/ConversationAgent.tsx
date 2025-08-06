@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Mic, MicOff, Volume2, VolumeX, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ConversationAgentProps {
   agentId?: string;
@@ -107,10 +108,17 @@ const ConversationAgent = ({
 
   const startConversation = async () => {
     try {
-      // For ElevenLabs conversational AI, we need to use the agent ID
-      // Since this is a public agent, no signed URL generation is needed
+      // Generate signed URL using our edge function
+      const { data, error } = await supabase.functions.invoke('elevenlabs-agent', {
+        body: { agent_id: agentId }
+      });
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
       const conversationId = await conversation.startSession({ 
-        agentId: agentId 
+        signedUrl: data.signed_url 
       });
       console.log("Conversation started with ID:", conversationId);
     } catch (error) {
