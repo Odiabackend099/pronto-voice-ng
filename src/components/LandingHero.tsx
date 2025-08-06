@@ -25,7 +25,7 @@ const LandingHero = () => {
             <div className="flex items-center gap-4">
               <div className="p-2 rounded-full bg-white/10 border border-primary/30">
                 <img 
-                  src="/lovable-uploads/98de0a9b-19cf-4161-8972-49fe7695d99b.png" 
+                  src="/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png"
                   alt="CrossAI Logo" 
                   className="w-12 h-12"
                 />
