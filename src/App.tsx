@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -138,13 +139,14 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter 
-          future={{ 
-            v7_startTransition: true, 
-            v7_relativeSplatPath: true 
-          }}
-        >
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter 
+            future={{ 
+              v7_startTransition: true, 
+              v7_relativeSplatPath: true 
+            }}
+          >
           <Suspense fallback={<LoadingScreen />}>
             <Routes>
               {/* Public routes */}
@@ -174,13 +176,12 @@ function App() {
           <Suspense fallback={null}>
             <TelegramChatWidget />
             <PWAInstallPrompt />
+            <Toaster />
+            <Sonner />
           </Suspense>
-          
-          {/* Toast systems */}
-          <Toaster />
-          <Sonner />
-        </BrowserRouter>
-      </QueryClientProvider>
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }
