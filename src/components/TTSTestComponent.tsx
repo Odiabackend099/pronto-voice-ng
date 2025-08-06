@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Volume2, Play, Square, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/utils/logger";
 
 interface TTSTestComponentProps {
   className?: string;
@@ -30,7 +31,7 @@ const TTSTestComponent = ({ className = "" }: TTSTestComponentProps) => {
 
     setIsLoading(true);
     try {
-      console.log('Testing TTS with text:', testText);
+      logger.debug('Testing TTS functionality', { textLength: testText.length }, "TTSTestComponent");
       
       // Call the TTS edge function
       const { data, error } = await supabase.functions.invoke('tts-generate', {

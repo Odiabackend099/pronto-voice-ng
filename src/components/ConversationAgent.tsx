@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Mic, MicOff, Volume2, VolumeX, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/utils/logger";
 
 interface ConversationAgentProps {
   agentId?: string;
@@ -30,7 +31,7 @@ const ConversationAgent = ({
 
   const conversation = useConversation({
     onConnect: () => {
-      console.log("Connected to ElevenLabs conversation");
+      logger.info("Connected to ElevenLabs conversation", undefined, "ConversationAgent");
       setIsConnected(true);
       toast({
         title: "AI Agent Connected",
@@ -38,7 +39,7 @@ const ConversationAgent = ({
       });
     },
     onDisconnect: () => {
-      console.log("Disconnected from ElevenLabs conversation");
+      logger.info("Disconnected from ElevenLabs conversation", undefined, "ConversationAgent");
       setIsConnected(false);
       toast({
         title: "AI Agent Disconnected",
@@ -47,7 +48,7 @@ const ConversationAgent = ({
       });
     },
     onMessage: (message) => {
-      console.log("New message:", message);
+      logger.debug("New message received", { messageType: typeof message }, "ConversationAgent");
       setMessages(prev => [...prev, {
         role: message.source || "assistant",
         content: message.message || "",
@@ -82,7 +83,7 @@ const ConversationAgent = ({
         description: string; 
         location?: string;
       }) => {
-        console.log("Emergency logged by AI agent:", parameters);
+        logger.emergencyReported(Date.now().toString(), parameters.emergencyType, parameters.severity);
         onEmergencyDetected?.(parameters);
         return "Emergency has been logged and response team notified.";
       },
@@ -120,9 +121,9 @@ const ConversationAgent = ({
       const conversationId = await conversation.startSession({ 
         signedUrl: data.signed_url 
       });
-      console.log("Conversation started with ID:", conversationId);
+      logger.info("Conversation started", { conversationId }, "ConversationAgent");
     } catch (error) {
-      console.error("Failed to start conversation:", error);
+      logger.error("Failed to start conversation", { error: error instanceof Error ? error.message : error }, "ConversationAgent");
       toast({
         title: "Connection Failed",
         description: "Could not connect to AI agent. Please check your ElevenLabs configuration.",
