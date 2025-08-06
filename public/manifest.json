@@ -1,0 +1,29 @@
+{
+  "name": "Protect.NG CrossAI - Nigerian Emergency Response Platform",
+  "short_name": "Protect.NG CrossAI",
+  "description": "Nigeria's first voice-powered federal emergency response system. Speak your emergency in any Nigerian language and get immediate, professional assistance.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0B",
+  "theme_color": "#00D26A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["emergency", "government", "utilities"],
+  "lang": "en-NG",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false
+}

@@ -73,9 +73,11 @@ const EmergencyReport = () => {
               </Link>
               
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/20">
-                  <Shield className="w-6 h-6 text-primary" />
-                </div>
+                <img 
+                  src="/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png"
+                  alt="Protect.NG CrossAI"
+                  className="w-8 h-8"
+                />
                 <div>
                   <h1 className="text-xl font-bold text-foreground">Emergency Response</h1>
                   <p className="text-sm text-muted-foreground">Protect.NG CrossAI</p>

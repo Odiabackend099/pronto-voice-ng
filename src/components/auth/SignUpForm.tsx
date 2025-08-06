@@ -131,7 +131,11 @@ const SignUpForm = () => {
       <div className="w-full max-w-4xl">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-4 flex items-center justify-center gap-3">
-            <Shield className="w-10 h-10 text-primary" />
+            <img 
+              src="/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png"
+              alt="Protect.NG CrossAI"
+              className="w-10 h-10"
+            />
             Protect.NG CrossAI
           </h1>
           <p className="text-xl text-muted-foreground">

@@ -1,0 +1,23 @@
+{
+  "appId": "app.lovable.bbf41e284821478d9d4bddda1f43f4e8",
+  "appName": "pronto-voice-ng",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://bbf41e28-4821-478d-9d4b-ddda1f43f4e8.lovableproject.com?forceHideBadge=true",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "splashFullScreen": true,
+      "splashImmersive": true
+    },
+    "StatusBar": {
+      "style": "DARK"
+    }
+  }
+}

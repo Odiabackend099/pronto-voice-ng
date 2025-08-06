@@ -231,7 +231,11 @@ const EnhancedDashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link to="/" className="flex items-center gap-3 text-foreground hover:text-primary transition-colors">
-                <Shield className="w-8 h-8 text-primary" />
+                <img 
+                  src="/lovable-uploads/22dad437-2a21-49ca-9723-622f503676fa.png"
+                  alt="Protect.NG CrossAI"
+                  className="w-8 h-8"
+                />
                 <span className="font-bold text-xl">Protect.NG CrossAI</span>
               </Link>
             </div>
