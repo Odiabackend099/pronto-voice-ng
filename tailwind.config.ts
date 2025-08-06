@@ -52,6 +52,25 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// Emergency Response Colors
+				emergency: {
+					critical: 'hsl(var(--emergency-critical))',
+					high: 'hsl(var(--emergency-high))',
+					medium: 'hsl(var(--emergency-medium))',
+					low: 'hsl(var(--emergency-low))'
+				},
+				// Nigeria Brand Colors
+				nigeria: {
+					green: 'hsl(var(--ng-green))',
+					gold: 'hsl(var(--ng-gold))',
+					dark: 'hsl(var(--ng-dark))'
+				},
+				// Microphone States
+				mic: {
+					active: 'hsl(var(--mic-active))',
+					listening: 'hsl(var(--mic-listening))',
+					idle: 'hsl(var(--mic-idle))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
