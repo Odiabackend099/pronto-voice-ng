@@ -15,8 +15,12 @@ const LandingHero = () => {
           {/* Logo and Brand */}
           <div className="flex items-center justify-center mb-8">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-primary/20 border border-primary">
-                <Shield className="w-8 h-8 text-primary" />
+              <div className="p-2 rounded-full bg-white/10 border border-primary/30">
+                <img 
+                  src="/lovable-uploads/98de0a9b-19cf-4161-8972-49fe7695d99b.png" 
+                  alt="CrossAI Logo" 
+                  className="w-12 h-12"
+                />
               </div>
               <div className="text-left">
                 <h1 className="text-3xl font-bold text-foreground">
