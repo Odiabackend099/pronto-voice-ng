@@ -194,23 +194,9 @@ const VoiceRecorder = ({ onTranscript, onRecordingState }: VoiceRecorderProps) =
       if (classifyResponse.ok) {
         const classification = await classifyResponse.json();
         
-        // Generate TTS response
-        const ttsResponse = await fetch(`https://ogozmimoriwhzoyicmse.supabase.co/functions/v1/tts-generate`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            text: classification.response || "Emergency received. Help is on the way.",
-            voice_id: "djTpf4uIoIkiTgl4S93N"
-          }),
-        });
-
-        if (ttsResponse.ok) {
-          const ttsResult = await ttsResponse.json();
-          // Play the audio response
-          playAudioResponse(ttsResult.audio_url);
-        }
+        // Generate TTS response using ODIA TTS directly
+        const ttsText = classification.response || "Emergency received. Help is on the way.";
+        await playAudioResponse(ttsText);
 
         // Log the emergency
         navigator.geolocation.getCurrentPosition(async (position) => {
@@ -243,15 +229,69 @@ const VoiceRecorder = ({ onTranscript, onRecordingState }: VoiceRecorderProps) =
     }
   };
 
-  const playAudioResponse = async (audioUrl: string) => {
+  const playAudioResponse = async (ttsText: string) => {
     try {
+      // Use ODIA TTS for emergency response
+      const params = new URLSearchParams({
+        text: ttsText,
+        voice: 'en-NG-EzinneNeural', // Nigerian English female voice
+        rate: '+0%',
+        volume: '+0%'
+      });
+
+      const response = await fetch(`https://odia-tts.onrender.com/speak?${params.toString()}`, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        throw new Error(`TTS failed: ${response.status}`);
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
+      
+      audio.onended = () => {
+        URL.revokeObjectURL(audioUrl); // Cleanup
+        console.log('ODIA TTS audio playback finished');
+      };
+      
+      audio.onerror = (e) => {
+        console.error('ODIA TTS audio playback error:', e);
+        URL.revokeObjectURL(audioUrl); // Cleanup
+        
+        // Fallback to browser speech synthesis
+        if ('speechSynthesis' in window) {
+          const utterance = new SpeechSynthesisUtterance(ttsText);
+          utterance.rate = 0.9;
+          utterance.pitch = 1.0;
+          utterance.volume = 0.8;
+          
+          // Try to use a more natural voice if available
+          const voices = speechSynthesis.getVoices();
+          const preferredVoice = voices.find(voice => 
+            voice.lang.includes('en') && voice.name.includes('Female')
+          ) || voices.find(voice => voice.lang.includes('en'));
+          
+          if (preferredVoice) {
+            utterance.voice = preferredVoice;
+          }
+          
+          speechSynthesis.speak(utterance);
+        }
+      };
+
       await audio.play();
     } catch (error) {
-      console.error("Audio playback failed:", error);
-      // Fallback to speech synthesis
-      const utterance = new SpeechSynthesisUtterance("Emergency received. Help is on the way.");
-      speechSynthesis.speak(utterance);
+      console.error('Failed to play ODIA TTS response:', error);
+      
+      // Fallback to browser speech synthesis
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(ttsText);
+        speechSynthesis.speak(utterance);
+      }
     }
   };
 

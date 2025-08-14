@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Volume2, Play, Square, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useTTS } from "@/hooks/useTTS";
+import { NIGERIAN_VOICES, type NigerianVoice } from "@/utils/ttsClient";
 import { logger } from "@/utils/logger";
 
 interface TTSTestComponentProps {
@@ -14,10 +16,10 @@ interface TTSTestComponentProps {
 
 const TTSTestComponent = ({ className = "" }: TTSTestComponentProps) => {
   const [testText, setTestText] = useState("Emergency services are on the way. Please stay calm and provide your location.");
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [selectedVoice, setSelectedVoice] = useState<NigerianVoice>("en-NG-EzinneNeural");
   const [lastResponse, setLastResponse] = useState<any>(null);
   const { toast } = useToast();
+  const { play, stop, isLoading, isPlaying } = useTTS();
 
   const testTTS = async () => {
     if (!testText.trim()) {
@@ -29,73 +31,42 @@ const TTSTestComponent = ({ className = "" }: TTSTestComponentProps) => {
       return;
     }
 
-    setIsLoading(true);
     try {
-      logger.debug('Testing TTS functionality', { textLength: testText.length }, "TTSTestComponent");
+      logger.debug('Testing ODIA TTS functionality', { 
+        textLength: testText.length, 
+        voice: selectedVoice 
+      }, "TTSTestComponent");
       
-      // Call the TTS edge function
-      const { data, error } = await supabase.functions.invoke('tts-generate', {
-        body: { 
-          text: testText,
-          voice_id: "djTpf4uIoIkiTgl4S93N" // Default ElevenLabs voice
-        }
+      await play(testText, selectedVoice);
+      
+      setLastResponse({
+        provider: "ODIA TTS",
+        voice: selectedVoice,
+        text_length: testText.length,
+        timestamp: new Date().toISOString()
       });
-
-      if (error) {
-        throw error;
-      }
-
-      setLastResponse(data);
       
-      if (data.audio_url) {
-        setIsPlaying(true);
-        const audio = new Audio(data.audio_url);
-        
-        audio.onended = () => {
-          setIsPlaying(false);
-        };
-        
-        audio.onerror = (e) => {
-          console.error('Audio playback error:', e);
-          setIsPlaying(false);
-          toast({
-            title: "Playback Error",
-            description: "Audio generated but playback failed. Check browser audio settings.",
-            variant: "destructive"
-          });
-        };
-
-        await audio.play();
-        
-        toast({
-          title: "TTS Success",
-          description: `Audio generated using ${data.provider || 'unknown'} provider`,
-        });
-      } else {
-        throw new Error('No audio URL in response');
-      }
+      toast({
+        title: "TTS Success",
+        description: `Audio generated using ODIA TTS with ${NIGERIAN_VOICES[selectedVoice]}`,
+      });
       
     } catch (error: any) {
-      console.error('TTS test failed:', error);
-      setIsPlaying(false);
+      logger.error('ODIA TTS test failed', { 
+        error: error.message, 
+        voice: selectedVoice 
+      }, "TTSTestComponent");
+      
       toast({
         title: "TTS Test Failed",
-        description: error.message || "Failed to generate audio. Check API configuration.",
+        description: error.message || "Failed to generate audio. Check ODIA TTS service.",
         variant: "destructive"
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const stopAudio = () => {
-    // Stop any currently playing audio
-    const audioElements = document.querySelectorAll('audio');
-    audioElements.forEach(audio => {
-      audio.pause();
-      audio.currentTime = 0;
-    });
-    setIsPlaying(false);
+    stop();
   };
 
   return (
@@ -122,6 +93,24 @@ const TTSTestComponent = ({ className = "" }: TTSTestComponentProps) => {
               placeholder="Enter text to convert to speech..."
               className="w-full"
             />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-foreground mb-2 block">
+              Voice:
+            </label>
+            <Select value={selectedVoice} onValueChange={(value: NigerianVoice) => setSelectedVoice(value)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a voice" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(NIGERIAN_VOICES).map(([voice, description]) => (
+                  <SelectItem key={voice} value={voice}>
+                    {description}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex gap-2">
@@ -157,21 +146,22 @@ const TTSTestComponent = ({ className = "" }: TTSTestComponentProps) => {
             <div className="mt-4 p-4 bg-muted/50 rounded-lg">
               <h4 className="text-sm font-medium text-foreground mb-2">Last Response:</h4>
               <div className="text-xs text-muted-foreground space-y-1">
-                <p>Provider: <span className="text-foreground">{lastResponse.provider || 'N/A'}</span></p>
-                <p>Duration: <span className="text-foreground">{lastResponse.duration_ms ? `${lastResponse.duration_ms}ms` : 'N/A'}</span></p>
-                <p>Audio URL: <span className="text-foreground">{lastResponse.audio_url ? 'Generated' : 'Not available'}</span></p>
+                <p>Provider: <span className="text-foreground">{lastResponse.provider}</span></p>
+                <p>Voice: <span className="text-foreground">{lastResponse.voice}</span></p>
+                <p>Text Length: <span className="text-foreground">{lastResponse.text_length} characters</span></p>
+                <p>Timestamp: <span className="text-foreground">{new Date(lastResponse.timestamp).toLocaleTimeString()}</span></p>
               </div>
             </div>
           )}
 
-          <div className="flex items-start gap-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-            <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+          <div className="flex items-start gap-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+            <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm">
-              <p className="font-medium text-yellow-800">TTS Test Requirements:</p>
-              <ul className="list-disc list-inside text-yellow-700 mt-1 space-y-1">
-                <li>ElevenLabs API key must be configured in Supabase secrets</li>
-                <li>Fallback to OpenAI TTS if ElevenLabs fails</li>
-                <li>Browser must allow audio playback</li>
+              <p className="font-medium text-blue-800">ODIA TTS Requirements:</p>
+              <ul className="list-disc list-inside text-blue-700 mt-1 space-y-1">
+                <li>ODIA TTS service running at https://odia-tts.onrender.com</li>
+                <li>Support for Nigerian English, Yoruba, Igbo, and Hausa voices</li>
+                <li>Browser must allow audio playback (user gesture required)</li>
               </ul>
             </div>
           </div>
