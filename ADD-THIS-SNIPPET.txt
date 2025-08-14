@@ -1,0 +1,6 @@
+﻿// Next.js  App Router (app/layout.tsx)
+// import Script from "next/script";
+// <Script src="/pronto-voice-widget.js" strategy="afterInteractive" />
+//
+// Next.js  Pages Router (pages/_document.tsx)
+// <script src="/pronto-voice-widget.js" defer></script>
