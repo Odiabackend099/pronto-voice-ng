@@ -1,0 +1,12 @@
+﻿{
+  "env": { "mode": "auto", "dev_host_match": ["localhost","127.0.0.1"] },
+  "agent": {
+    "dev":  { "base": "http://127.0.0.1:5600" },
+    "prod": { "base": "https://agent.your-domain.tld" }
+  },
+  "tts": {
+    "dev":  { "base": "http://127.0.0.1:5600" },   // via agent proxy in prod
+    "prod": { "base": "https://agent.your-domain.tld" }
+  },
+  "voice": "en-NG-EzinneNeural"
+}
