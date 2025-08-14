@@ -1,49 +1,24 @@
 ﻿<!doctype html>
 <html lang="en">
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Pronto Voice NG — ODIA TTS</title>
-<style>
-  body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:20px}
-  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  input,select,button,textarea{font:inherit;padding:10px;border:1px solid #ddd;border-radius:10px}
-  textarea{width:100%;height:120px}
-  button{background:#0a7c2f;color:#fff;border:none;cursor:pointer}
-  .muted{color:#666}
-</style>
-<h2>Pronto Voice NG — ODIA TTS (Edge)</h2>
-<p class="muted">Type text → click Speak. Uses local ODIA TTS on <code>http://127.0.0.1:5500</code>.</p>
-<div class="row">
-  <select id="voice">
-    <option value="en-NG-EzinneNeural" selected>en-NG-EzinneNeural</option>
-    <option value="en-NG-AbeoNeural">en-NG-AbeoNeural</option>
-    <option value="en-US-JennyNeural">en-US-JennyNeural</option>
-  </select>
-  <input id="rate" type="number" value="0" min="-100" max="100" step="5" title="rate %"/>
-  <input id="volume" type="number" value="0" min="-100" max="100" step="5" title="volume %"/>
-  <button id="speak">Speak</button>
-</div>
-<p></p>
-<textarea id="text">Hello, this is Pronto Voice NG speaking with ODIA TTS. 🇳🇬</textarea>
-<audio id="player" controls preload="none"></audio>
-<script>
-const btn = document.getElementById('speak');
-const text = document.getElementById('text');
-const voice = document.getElementById('voice');
-const rate = document.getElementById('rate');
-const volume = document.getElementById('volume');
-const player = document.getElementById('player');
-
-async function speak(){
-  const q = new URLSearchParams({
-    text:text.value, voice:voice.value, rate:String(rate.value||0), volume:String(volume.value||0)
-  });
-  const url = http://127.0.0.1:5500/speak?+q.toString();
-  const res = await fetch(url);
-  if(!res.ok){ alert('TTS error'); return; }
-  const blob = await res.blob();
-  player.src = URL.createObjectURL(blob);
-  player.play();
-}
-btn.addEventListener('click', speak);
-</script>
+  <head>
+    <meta charset="utf-8" />
+    <title>Pronto Voice — Test Page</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <!-- Load the widget -->
+    <script src="/pronto-voice-widget.js" defer></script>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; }
+      .card { border:1px solid #e5e7eb; border-radius:12px; padding:20px; max-width:720px; }
+      .muted { color:#6b7280; }
+      code { background:#f3f4f6; padding:2px 6px; border-radius:6px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Pronto Voice — ODIA TTS</h1>
+      <p class="muted">Click the green <b>🎤</b> button (bottom-right), speak, and you’ll hear the reply.</p>
+      <p>Agent: <code>http://127.0.0.1:5600/reply</code> &nbsp; | &nbsp; TTS: <code>http://127.0.0.1:5500/speak</code></p>
+      <p class="muted">If your browser blocks the mic, allow microphone permission and try again.</p>
+    </div>
+  </body>
 </html>

@@ -1,12 +1,20 @@
-﻿{
-  "env": { "mode": "auto", "dev_host_match": ["localhost","127.0.0.1"] },
+{
   "agent": {
-    "dev":  { "base": "http://127.0.0.1:5600" },
-    "prod": { "base": "https://agent.your-domain.tld" }
+    "baseUrl": "http://127.0.0.1:5600",
+    "endpoint": "/reply",
+    "timeoutMs": 20000
   },
   "tts": {
-    "dev":  { "base": "http://127.0.0.1:5600" },   // via agent proxy in prod
-    "prod": { "base": "https://agent.your-domain.tld" }
+    "baseUrl": "http://127.0.0.1:5500",
+    "endpoint": "/speak",
+    "defaultVoice": "en-NG-EzinneNeural",
+    "rate": "0",
+    "volume": "0"
   },
-  "voice": "en-NG-EzinneNeural"
+  "stt": {
+    "language": "en-NG"
+  },
+  "ui": {
+    "buttonPosition": "bottom-right"
+  }
 }
