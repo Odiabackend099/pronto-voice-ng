@@ -1,0 +1,5 @@
+﻿regex: sk-[a-zA-Z0-9_-]{8,}
+regex: sk-(proj|ant)-[A-Za-z0-9_-]{8,}
+regex: AC[a-zA-Z0-9]{30,}      # Twilio SID-ish
+regex: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9  # JWT header (Supabase SR hint)
+Claude|Anthropic|ElevenLabs|TWILIO_AUTH_TOKEN

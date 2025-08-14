@@ -1,0 +1,64 @@
+# Add near top:
+from io import BytesIO
+from fastapi import Body
+
+# Replace /speak route with this version:
+@app.get("/speak")
+async def speak(
+    text: str = Query(...),
+    voice: str = Query(DEFAULT_VOICE),
+    rate: Optional[str] = Query(None),
+    volume: Optional[str] = Query(None),
+    mode: Optional[str] = Query(None)  # add this
+):
+    try:
+        txt = _clean(text)
+        if not txt: return JSONResponse({"error":"empty_text"}, status_code=400)
+        rate_pct = _pct(rate, 0)
+        vol_pct  = _pct(volume, 0)
+
+        if mode == "file":
+            # Non-streaming: buffer to RAM then return once
+            buf = BytesIO()
+            comm = edge_tts.Communicate(text=txt, voice=voice, rate=f"{rate_pct}%", volume=f"{vol_pct}%")
+            async for chunk in comm.stream():
+                if chunk["type"] == "audio":
+                    buf.write(chunk["data"])
+            headers = {"Content-Type":"audio/mpeg","Cache-Control":"no-store","X-ODIA-Voice":voice}
+            return Response(content=buf.getvalue(), media_type="audio/mpeg", headers=headers)
+
+        # Default: streaming
+        async def gen():
+            async for b in _stream(txt, voice, rate_pct, vol_pct):
+                yield b
+        headers = {"Content-Type":"audio/mpeg","Cache-Control":"no-store","X-ODIA-Voice":voice}
+        return StreamingResponse(gen(), media_type="audio/mpeg", headers=headers)
+    except edge_tts.Communicate.ConnectionError as e:
+        logger.warning("TTS connection error: %s", e)
+        return JSONResponse({"error":"tts_unavailable"}, status_code=502)
+    except Exception as e:
+        logger.exception("Unhandled: %s", e)
+        return JSONResponse({"error":"internal_error"}, status_code=500)
+
+# Add non-streaming POST using Body:
+@app.post("/synthesize-file")
+async def synthesize_file(body: dict = Body(...)):
+    try:
+        txt    = _clean(body.get("text",""))
+        voice  = body.get("voice") or DEFAULT_VOICE
+        rate   = _pct(str(body.get("rate","")), 0)
+        volume = _pct(str(body.get("volume","")), 0)
+        if not txt: return JSONResponse({"error":"empty_text"}, status_code=400)
+        buf = BytesIO()
+        comm = edge_tts.Communicate(text=txt, voice=voice, rate=f"{rate}%", volume=f"{volume}%")
+        async for chunk in comm.stream():
+            if chunk["type"] == "audio":
+                buf.write(chunk["data"])
+        headers = {"Content-Type":"audio/mpeg","Cache-Control":"no-store","X-ODIA-Voice":voice}
+        return Response(content=buf.getvalue(), media_type="audio/mpeg", headers=headers)
+    except edge_tts.Communicate.ConnectionError as e:
+        logger.warning("TTS connection error: %s", e)
+        return JSONResponse({"error":"tts_unavailable"}, status_code=502)
+    except Exception as e:
+        logger.exception("Unhandled: %s", e)
+        return JSONResponse({"error":"internal_error"}, status_code=500)

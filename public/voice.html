@@ -1,24 +1,19 @@
-﻿<!doctype html>
-<html lang="en">
+<!doctype html>
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>Pronto Voice — Test Page</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <!-- Load the widget -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pronto Voice Test</title>
     <script src="/pronto-voice-widget.js" defer></script>
     <style>
       body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; }
-      .card { border:1px solid #e5e7eb; border-radius:12px; padding:20px; max-width:720px; }
-      .muted { color:#6b7280; }
-      code { background:#f3f4f6; padding:2px 6px; border-radius:6px; }
+      h1 { margin-bottom: 12px; }
+      .tip { opacity: 0.7; font-size: 14px; }
     </style>
   </head>
   <body>
-    <div class="card">
-      <h1>Pronto Voice — ODIA TTS</h1>
-      <p class="muted">Click the green <b>🎤</b> button (bottom-right), speak, and you’ll hear the reply.</p>
-      <p>Agent: <code>http://127.0.0.1:5600/reply</code> &nbsp; | &nbsp; TTS: <code>http://127.0.0.1:5500/speak</code></p>
-      <p class="muted">If your browser blocks the mic, allow microphone permission and try again.</p>
-    </div>
+    <h1>Pronto Voice – Test Page</h1>
+    <p>Click the green mic at the corner. Say something like: <em>“How far?”</em></p>
+    <p class="tip">This page is optional, the widget also loads globally on your site.</p>
   </body>
 </html>

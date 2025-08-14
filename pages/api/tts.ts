@@ -1,4 +1,4 @@
-﻿import type { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 export const config = { api: { responseLimit: false } };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -8,10 +8,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const idx = req.url?.indexOf('?') ?? -1;
     const qs  = idx >= 0 ? req.url!.substring(idx) : '';
-    const url = ${base};
+    const url = `${base}${qs}`;
 
     const fr  = await fetch(url, { method: 'GET' });
-
     const ct = fr.headers.get('content-type') || 'audio/mpeg';
     res.setHeader('Content-Type', ct);
     res.setHeader('Cache-Control', 'no-store');

@@ -1,0 +1,92 @@
+﻿# server.py  ODIA TTS (Edge TTS): /health, GET /speak, POST /synthesize
+import os, html, logging
+from typing import AsyncIterator, Optional
+from fastapi import FastAPI, Query
+from fastapi.responses import JSONResponse, StreamingResponse, Response
+from fastapi.middleware.cors import CORSMiddleware
+import edge_tts
+
+APP_NAME = "ODIA TTS"
+DEFAULT_VOICE = os.getenv("ODIA_TTS_VOICE","en-NG-EzinneNeural")
+MAX_TEXT_LEN = 5000
+logger = logging.getLogger("odia_tts")
+
+app = FastAPI(title=APP_NAME, version="1.1.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], allow_credentials=False,
+    allow_methods=["GET","POST","HEAD","OPTIONS"], allow_headers=["*"]
+)
+
+def _pct(s: Optional[str], fallback: int=0) -> int:
+    if not s: return fallback
+    s = s.strip().replace("%","")
+    try: n = int(s)
+    except: return fallback
+    return max(-100, min(100, n))
+
+def _clean(t: str) -> str:
+    return html.escape((t or "").strip())[:MAX_TEXT_LEN]
+
+async def _stream(text:str, voice:str, rate_pct:int, vol_pct:int) -> AsyncIterator[bytes]:
+    comm = edge_tts.Communicate(text=text, voice=voice, rate=f"{rate_pct}%", volume=f"{vol_pct}%")
+    async for chunk in comm.stream():
+        if chunk["type"] == "audio":
+            yield chunk["data"]
+
+@app.get("/health")
+async def health(): return {"ok": True, "service": APP_NAME, "voice_default": DEFAULT_VOICE}
+
+@app.head("/health")
+async def health_head(): return Response(status_code=200)
+
+@app.get("/speak")
+async def speak(
+    text: str = Query(..., description="Text to synthesize"),
+    voice: str = Query(DEFAULT_VOICE),
+    rate: Optional[str] = Query(None, description="-100..+100"),
+    volume: Optional[str] = Query(None, description="-100..+100"),
+):
+    try:
+        txt = _clean(text)
+        if not txt: return JSONResponse({"error":"empty_text"}, status_code=400)
+        rate_pct = _pct(rate, 0)
+        vol_pct  = _pct(volume, 0)
+        async def gen():
+            async for b in _stream(txt, voice, rate_pct, vol_pct):
+                yield b
+        headers = {"Content-Type": "audio/mpeg", "Cache-Control": "no-store", "X-ODIA-Voice": voice}
+        return StreamingResponse(gen(), media_type="audio/mpeg", headers=headers)
+    except edge_tts.Communicate.ConnectionError as e:
+        logger.warning("TTS connection error: %s", e)
+        return JSONResponse({"error":"tts_unavailable"}, status_code=502)
+    except Exception as e:
+        logger.exception("Unhandled: %s", e)
+        return JSONResponse({"error":"internal_error"}, status_code=500)
+
+@app.post("/synthesize")
+async def synthesize(body: dict):
+    # Accept JSON: {text, voice?, rate?, volume?}
+    try:
+        txt    = _clean(body.get("text",""))
+        voice  = body.get("voice") or DEFAULT_VOICE
+        rate   = _pct(str(body.get("rate","")), 0)
+        volume = _pct(str(body.get("volume","")), 0)
+        if not txt: return JSONResponse({"error":"empty_text"}, status_code=400)
+        async def gen():
+            async for b in _stream(txt, voice, rate, volume):
+                yield b
+        headers = {"Content-Type": "audio/mpeg", "Cache-Control": "no-store", "X-ODIA-Voice": voice}
+        return StreamingResponse(gen(), media_type="audio/mpeg", headers=headers)
+    except edge_tts.Communicate.ConnectionError as e:
+        logger.warning("TTS connection error: %s", e)
+        return JSONResponse({"error":"tts_unavailable"}, status_code=502)
+    except Exception as e:
+        logger.exception("Unhandled: %s", e)
+        return JSONResponse({"error":"internal_error"}, status_code=500)
+
+if __name__ == "__main__":
+    import uvicorn
+    host = os.getenv("ODIA_TTS_HOST","127.0.0.1")
+    port = int(os.getenv("ODIA_TTS_PORT","5500"))
+    uvicorn.run("server:app", host=host, port=port, reload=False)
