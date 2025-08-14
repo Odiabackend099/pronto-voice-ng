@@ -20,18 +20,13 @@ const SplashScreen = lazy(() => import("./components/SplashScreen"));
 const TelegramChatWidget = lazy(() => import("./components/TelegramChatWidget"));
 const PWAInstallPrompt = lazy(() => import("./components/PWAInstallPrompt"));
 
-// Production-optimized QueryClient
+// Create QueryClient with optimized settings for production
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (was cacheTime)
-      retry: 3,
-      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes (replaces cacheTime)
       refetchOnWindowFocus: false,
-      refetchOnMount: true,
-    },
-    mutations: {
       retry: 1,
     },
   },
@@ -88,40 +83,29 @@ function App() {
     initializeAuth();
 
     // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted) {
-        setSession(session);
-        setLoading(false);
-        setError(null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session);
+        if (mounted) {
+          setSession(session);
+          setLoading(false);
+        }
       }
-    });
+    );
+
+    // Splash screen timer
+    const splashTimer = setTimeout(() => {
+      if (mounted) {
+        setShowSplash(false);
+      }
+    }, 2000);
 
     return () => {
       mounted = false;
       subscription.unsubscribe();
+      clearTimeout(splashTimer);
     };
   }, []);
-
-  // Handle errors
-  if (error) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="text-center space-y-4 max-w-md">
-          <div className="text-destructive text-4xl">⚠️</div>
-          <h1 className="text-xl font-semibold text-foreground">System Error</h1>
-          <p className="text-muted-foreground">{error}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="bg-primary text-primary-foreground px-6 py-2 rounded-md hover:bg-primary/90"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   // Show splash screen
   if (showSplash) {
@@ -137,6 +121,27 @@ function App() {
     return <LoadingScreen />;
   }
 
+  // Show error screen
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4 max-w-md mx-auto p-6">
+          <div className="w-16 h-16 bg-destructive/20 rounded-full flex items-center justify-center mx-auto">
+            <span className="text-destructive text-2xl">⚠️</span>
+          </div>
+          <h1 className="text-xl font-semibold text-foreground">System Error</h1>
+          <p className="text-muted-foreground">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
@@ -147,38 +152,34 @@ function App() {
               v7_relativeSplatPath: true 
             }}
           >
-          <Suspense fallback={<LoadingScreen />}>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Index />} />
-              <Route 
-                path="/login" 
-                element={!session ? <Login /> : <Navigate to="/dashboard" replace />} 
-              />
-              <Route 
-                path="/signup" 
-                element={!session ? <SignUp /> : <Navigate to="/dashboard" replace />} 
-              />
-              
-              {/* Protected routes */}
-              <Route 
-                path="/dashboard" 
-                element={session ? <EnhancedDashboard /> : <Navigate to="/login" replace />} 
-              />
-              <Route path="/report" element={<EmergencyReport />} />
-              
-              {/* 404 route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-          
-          {/* Global Components - Only load when needed */}
-          <Suspense fallback={null}>
-            <TelegramChatWidget />
-            <PWAInstallPrompt />
-            <Toaster />
-            <Sonner />
-          </Suspense>
+            <Suspense fallback={<LoadingScreen />}>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/report" element={<EmergencyReport />} />
+                
+                {/* Protected routes */}
+                <Route path="/dashboard" element={
+                  session ? <Dashboard /> : <Navigate to="/login" replace />
+                } />
+                <Route path="/enhanced-dashboard" element={
+                  session ? <EnhancedDashboard /> : <Navigate to="/login" replace />
+                } />
+                
+                {/* Catch all route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+
+            {/* Global components */}
+            <Suspense fallback={null}>
+              <TelegramChatWidget />
+              <PWAInstallPrompt />
+              <Toaster />
+              <Sonner />
+            </Suspense>
           </BrowserRouter>
         </QueryClientProvider>
       </ThemeProvider>

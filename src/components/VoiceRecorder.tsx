@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Mic, MicOff, Phone, PhoneOff, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface VoiceRecorderProps {
   onTranscript: (text: string, language: string) => void;
@@ -154,70 +155,82 @@ const VoiceRecorder = ({ onTranscript, onRecordingState }: VoiceRecorderProps) =
   };
 
   const processAudio = async (audioBlob: Blob) => {
+    let classification: any = null;
     try {
       // Convert audio blob to base64
       const arrayBuffer = await audioBlob.arrayBuffer();
       const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
       
       // Call STT edge function
-      const sttResponse = await fetch(`https://ogozmimoriwhzoyicmse.supabase.co/functions/v1/stt-transcribe`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ audio: base64Audio }),
+      const { data: sttResult, error: sttError } = await supabase.functions.invoke('stt-transcribe', {
+        body: { audio: base64Audio }
       });
 
-      if (!sttResponse.ok) {
-        throw new Error('STT processing failed');
+      if (sttError) {
+        throw new Error('STT processing failed: ' + sttError.message);
       }
 
-      const sttResult = await sttResponse.json();
       const { transcript, detected_language, confidence } = sttResult;
-
       setCurrentTranscript(transcript);
       setDetectedLanguage(detected_language);
       onTranscript(transcript, detected_language);
 
       // Classify the emergency
-      const classifyResponse = await fetch(`https://ogozmimoriwhzoyicmse.supabase.co/functions/v1/classify-emergency`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
+      const { data: classifyResult, error: classifyError } = await supabase.functions.invoke('classify-emergency', {
+        body: { 
           transcript, 
           language: detected_language 
-        }),
+        }
       });
 
-      if (classifyResponse.ok) {
-        const classification = await classifyResponse.json();
-        
+      if (classifyError) {
+        console.error('Classification failed:', classifyError);
+        // Continue with default classification
+        await playAudioResponse("Emergency received. Help is on the way.");
+        classification = { emergency_type: 'general', severity: 'medium' };
+      } else {
+        classification = classifyResult;
         // Generate TTS response using ODIA TTS directly
         const ttsText = classification.response || "Emergency received. Help is on the way.";
         await playAudioResponse(ttsText);
-
-        // Log the emergency
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          await fetch(`https://ogozmimoriwhzoyicmse.supabase.co/functions/v1/log-emergency`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              transcript,
-              detected_language,
-              confidence,
-              emergency_type: classification.emergency_type,
-              severity: classification.severity,
-              location_lat: position.coords.latitude,
-              location_lng: position.coords.longitude,
-              audio_url: null,
-            }),
-          });
-        });
       }
+
+      // Log the emergency
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { data: logResult, error: logError } = await supabase.functions.invoke('log-emergency', {
+          body: {
+            transcript,
+            detected_language,
+            confidence,
+            emergency_type: classification?.emergency_type || 'general',
+            severity: classification?.severity || 'medium',
+            location_lat: position.coords.latitude,
+            location_lng: position.coords.longitude,
+            audio_url: null,
+          }
+        });
+
+        if (logError) {
+          console.error('Failed to log emergency:', logError);
+        } else {
+          console.log('Emergency logged successfully:', logResult);
+        }
+      }, (error) => {
+        console.error('Geolocation error:', error);
+        // Log without location
+        supabase.functions.invoke('log-emergency', {
+          body: {
+            transcript,
+            detected_language,
+            confidence,
+            emergency_type: classification?.emergency_type || 'general',
+            severity: classification?.severity || 'medium',
+            location_lat: null,
+            location_lng: null,
+            audio_url: null,
+          }
+        });
+      });
 
     } catch (error) {
       console.error("Audio processing failed:", error);
