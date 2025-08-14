@@ -1,4 +1,0 @@
-﻿{
-  "agent": { "name": "CrossAI", "baseUrl": "https://YOUR-5600-URL/reply" },
-  "tts":   { "baseUrl": "https://YOUR-5500-URL", "voice": "en-NG-EzinneNeural", "mode": "file" }
-}
