@@ -1,24 +1,35 @@
-# Logs
-logs
+﻿# Node / Next
+node_modules/
+.next/
+out/
+dist/
+.vercel/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Env
+.env
+.env.*
+!.env.example
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# Builds / archives
+*.zip
+
+# Python (local dev)
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pytest_cache/
+*.coverage
+odia-tts/.venv/
+
+# Local backups / temp
+*.bak
+*.tmp
+
+# Local one-off scripts
+oneclick-*.ps1
+wire-*.ps1
+
+# Accidental root server file (keep odia-tts/server.py only)
+server.py
